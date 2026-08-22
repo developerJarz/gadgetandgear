@@ -2,15 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Zap, Eye, EyeOff, Loader2, Shield, UserCog, Users, UserCheck } from "lucide-react";
-import { roleLogin } from "@/lib/store";
-
-const DEMO_ROLES = [
-  { role: "Admin", email: "admin@gadgethub.bd", pass: "admin123", icon: Shield, color: "text-destructive border-destructive/30 hover:bg-destructive/10" },
-  { role: "Manager", email: "manager@gadgethub.bd", pass: "manager123", icon: UserCog, color: "text-primary border-primary/30 hover:bg-primary/10" },
-  { role: "Staff", email: "staff@gadgethub.bd", pass: "staff123", icon: Users, color: "text-success border-success/30 hover:bg-success/10" },
-  { role: "Customer", email: "customer@gadgethub.bd", pass: "customer123", icon: UserCheck, color: "text-warning border-warning/30 hover:bg-warning/10" },
-];
+import { Zap, Eye, EyeOff, Loader2 } from "lucide-react";
 
 export default function AdminLogin() {
   const router = useRouter();
@@ -20,30 +12,39 @@ export default function AdminLogin() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const fillRole = (e: string, p: string) => {
-    setEmail(e);
-    setPassword(p);
-    setError("");
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
-    await new Promise((r) => setTimeout(r, 600));
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-    const user = roleLogin(email, password);
-    if (user) {
-      if (user.role === "Customer") {
-        router.push("/account");
-      } else {
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // Store user info in localStorage for UI (auth is in httpOnly cookie)
+        localStorage.setItem("gh_auth", JSON.stringify({
+          loggedIn: true,
+          email: data.user.email,
+          name: data.user.name,
+          role: data.user.role,
+          loginAt: new Date().toISOString(),
+        }));
         router.push("/admin");
+        router.refresh();
+      } else {
+        setError(data.error || "Invalid email or password.");
       }
-    } else {
-      setError("Invalid credentials. Please click a role shortcut below.");
-      setLoading(false);
+    } catch {
+      setError("Connection error. Please try again.");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -62,15 +63,15 @@ export default function AdminLogin() {
             </span>
           </div>
           <h1 className="font-display font-bold text-3xl">
-            Gadget & Gear<span className="text-primary">BD</span>
+            Gadget &amp; Gear<span className="text-primary">BD</span>
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Multi-Role Sign In</p>
+          <p className="text-sm text-muted-foreground mt-1">Admin Control Center</p>
         </div>
 
         {/* Login Card */}
         <div className="glass rounded-3xl p-8 shadow-2xl shadow-primary/10 animate-fade-up" style={{ animationDelay: "0.1s" }}>
           <h2 className="font-display font-semibold text-xl mb-1">Welcome back</h2>
-          <p className="text-sm text-muted-foreground mb-6">Sign in to your account</p>
+          <p className="text-sm text-muted-foreground mb-6">Sign in with your admin credentials</p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -125,27 +126,11 @@ export default function AdminLogin() {
               )}
             </button>
           </form>
-
-          {/* Role Shortcut Quick Buttons */}
-          <div className="mt-6 pt-6 border-t border-border space-y-2">
-            <p className="text-xs font-medium text-muted-foreground text-center mb-3">
-              One-click Role Demo Login:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_ROLES.map((r) => (
-                <button
-                  key={r.role}
-                  type="button"
-                  onClick={() => fillRole(r.email, r.pass)}
-                  className={`p-2.5 rounded-xl border text-xs font-medium flex items-center gap-2 transition ${r.color}`}
-                >
-                  <r.icon className="w-3.5 h-3.5" />
-                  <span>{r.role}</span>
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
+
+        <p className="text-center text-[10px] text-muted-foreground mt-6">
+          Server-side authentication with JWT &amp; httpOnly cookies
+        </p>
       </div>
     </div>
   );

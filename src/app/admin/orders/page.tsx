@@ -45,7 +45,7 @@ export default function AdminOrders() {
     try {
       const res = await fetch("/api/orders");
       const data = await res.json();
-      setOrders(data);
+      setOrders(data.orders || data);
     } catch {
       toast.error("Failed to load orders");
     }

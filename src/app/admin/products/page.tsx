@@ -47,7 +47,8 @@ export default function AdminProducts() {
       const [pRes, cRes, bRes] = await Promise.all([
         fetch("/api/products"), fetch("/api/categories"), fetch("/api/brands"),
       ]);
-      setProducts(await pRes.json());
+      const pData = await pRes.json();
+      setProducts(pData.products || pData); // Handle both new and legacy format
       setCategories(await cRes.json());
       setBrands(await bRes.json());
     } catch { toast.error("Failed to load data"); }
