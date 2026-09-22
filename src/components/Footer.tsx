@@ -1,17 +1,23 @@
 import Link from "next/link";
-import { Instagram, Facebook, Youtube, Zap, Phone, MessageCircle, Mail } from "lucide-react";
+import Image from "next/image";
+import { Instagram, Facebook, Youtube, Phone, MessageCircle, Mail } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="bg-brand-dark text-primary-foreground mt-24 border-t border-white/10">
       <div className="container-x py-16 grid gap-10 md:grid-cols-5">
         <div className="md:col-span-2 space-y-4">
-          <p className="flex items-center gap-2 font-display font-bold text-xl">
-            <span className="w-8 h-8 rounded-lg gradient-brand flex items-center justify-center shadow-md">
-              <Zap className="w-4 h-4" />
-            </span>
-            Gadget & Gear<span className="text-accent">BD</span>
-          </p>
+          <Link href="/" className="inline-block hover:opacity-90 transition-opacity" aria-label="Home">
+            <div className="relative h-14 sm:h-16 w-[180px] sm:w-[220px] flex items-center shrink-0">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                width={256}
+                height={151}
+                className="w-full h-full object-contain object-left drop-shadow-lg"
+              />
+            </div>
+          </Link>
           <p className="text-sm opacity-70 max-w-sm leading-relaxed">
             Bangladesh&apos;s premium destination for smartphones, laptops, audio and smart tech — with official warranty, 0% EMI and nationwide express delivery.
           </p>

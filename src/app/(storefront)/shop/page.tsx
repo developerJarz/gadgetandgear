@@ -27,6 +27,7 @@ import {
   ActiveFilterChips,
   FilterState,
   INITIAL_FILTERS,
+  PRICE_PRESETS,
 } from "@/components/shop/ShopFilters";
 import { ProductQuickView } from "@/components/shop/ProductQuickView";
 import { ProductListView } from "@/components/shop/ProductListView";
@@ -287,6 +288,36 @@ function ShopContent() {
               onSelectCategory={handleCategorySelect}
               totalProductsCount={PRODUCTS.length}
             />
+          </div>
+
+          {/* Quick Price Range Filter Bar */}
+          <div className="mt-3.5 pt-3 border-t border-border/40 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-thin">
+            <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider shrink-0 mr-1 flex items-center gap-1">
+              <Zap className="w-3 h-3 text-primary" /> Price:
+            </span>
+            {PRICE_PRESETS.map((preset) => {
+              const isActive =
+                filters.priceRange[0] === preset.min &&
+                filters.priceRange[1] === preset.max;
+              return (
+                <button
+                  key={preset.label}
+                  onClick={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      priceRange: [preset.min, preset.max],
+                    }))
+                  }
+                  className={`px-3 py-1 text-xs rounded-full border shrink-0 transition font-medium ${
+                    isActive
+                      ? "gradient-brand text-primary-foreground border-transparent shadow-sm font-semibold"
+                      : "border-border/80 bg-background/80 hover:bg-accent text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {preset.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

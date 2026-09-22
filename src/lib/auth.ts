@@ -68,6 +68,20 @@ export async function getAuthFromCookie(): Promise<JWTPayload | null> {
   return verifyToken(token);
 }
 
+export async function getCustomerAuthFromCookie(): Promise<JWTPayload | null> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("gh_customer_token")?.value;
+  if (!token) return null;
+  return verifyToken(token);
+}
+
+export async function getAnyAuthFromCookie(): Promise<JWTPayload | null> {
+  const adminAuth = await getAuthFromCookie();
+  if (adminAuth) return adminAuth;
+  return getCustomerAuthFromCookie();
+}
+
+
 /* ─── RBAC Permission Maps ─── */
 
 const ROLE_PERMISSIONS: Record<string, string[]> = {

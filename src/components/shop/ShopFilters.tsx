@@ -40,13 +40,15 @@ export const INITIAL_FILTERS: FilterState = {
   inStockOnly: false,
 };
 
-const PRICE_PRESETS = [
+export const PRICE_PRESETS = [
   { label: "All Prices", min: 0, max: 350000 },
-  { label: "Under ৳15K", min: 0, max: 15000 },
-  { label: "৳15K – ৳50K", min: 15000, max: 50000 },
-  { label: "৳50K – ৳100K", min: 50000, max: 100000 },
-  { label: "৳100K – ৳200K", min: 100000, max: 200000 },
-  { label: "Above ৳200K", min: 200000, max: 350000 },
+  { label: "Under ৳10,000", min: 0, max: 10000 },
+  { label: "৳10,000 – ৳20,000", min: 10000, max: 20000 },
+  { label: "৳20,000 – ৳30,000", min: 20000, max: 30000 },
+  { label: "৳30,000 – ৳40,000", min: 30000, max: 40000 },
+  { label: "৳40,000 – ৳60,000", min: 40000, max: 60000 },
+  { label: "৳60,000 – ৳100,000", min: 60000, max: 100000 },
+  { label: "Above ৳100,000", min: 100000, max: 350000 },
 ];
 
 const TAG_OPTIONS = ["Flash Deal", "Bestseller", "New", "Pre-order", "Official"];
@@ -181,11 +183,16 @@ export function ShopFilters({
         {expandedSections.price && (
           <div className="mt-3 space-y-3">
             {/* Quick Price Preset Chips */}
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="space-y-1">
               {PRICE_PRESETS.map((preset) => {
                 const isActive =
                   filters.priceRange[0] === preset.min &&
                   filters.priceRange[1] === preset.max;
+                const count = products.filter((p) => {
+                  const matchesCat = filters.category === "all" || p.category === filters.category;
+                  return matchesCat && p.price >= preset.min && p.price <= preset.max;
+                }).length;
+
                 return (
                   <button
                     key={preset.label}
@@ -195,13 +202,16 @@ export function ShopFilters({
                         priceRange: [preset.min, preset.max],
                       })
                     }
-                    className={`px-2.5 py-1.5 text-[11px] rounded-lg border text-left transition font-medium ${
+                    className={`w-full px-2.5 py-1.5 text-xs rounded-xl border flex items-center justify-between transition font-medium ${
                       isActive
                         ? "gradient-brand text-primary-foreground border-transparent shadow-sm"
-                        : "border-border bg-secondary/40 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                        : "border-border/80 bg-secondary/30 text-muted-foreground hover:text-foreground hover:bg-secondary"
                     }`}
                   >
-                    {preset.label}
+                    <span>{preset.label}</span>
+                    <span className={`text-[10px] font-mono ${isActive ? "text-primary-foreground/90 font-bold" : "text-muted-foreground"}`}>
+                      {count}
+                    </span>
                   </button>
                 );
               })}

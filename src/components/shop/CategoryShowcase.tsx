@@ -13,6 +13,7 @@ import {
   Volume2,
   Plane,
   Zap,
+  Tag,
   Layers,
   ChevronLeft,
   ChevronRight,
@@ -31,6 +32,7 @@ const ICON_MAP: Record<string, any> = {
   Volume2,
   Plane,
   Zap,
+  Tag,
 };
 
 interface CategoryShowcaseProps {

@@ -11,7 +11,7 @@ import { CATEGORIES, PRODUCTS, BRANDS } from "@/lib/site-data";
 import { ProductCard } from "@/components/ProductCard";
 
 export default function Home() {
-  const flash = PRODUCTS.filter((p) => p.tag === "Flash Deal");
+  const flash = PRODUCTS.filter((p) => p.tag === "Flash Deal").slice(0, 8);
   const bestsellers = PRODUCTS.filter((p) => p.tag === "Bestseller").slice(0, 4);
   const newArrivals = PRODUCTS.filter((p) => p.tag === "New" || p.tag === "Pre-order").slice(0, 4);
   const trending = PRODUCTS.slice(0, 8);

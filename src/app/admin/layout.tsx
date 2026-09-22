@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import NextImage from "next/image";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, UserCog,
   Settings, LogOut, Zap, Menu, X, Bell, Search, ChevronDown, ChevronRight,
@@ -117,12 +118,14 @@ function SidebarGroup({
   pathname,
   collapsed,
   onToggle,
+  onItemClick,
 }: {
   group: NavGroup;
   userRole: string;
   pathname: string;
   collapsed: boolean;
   onToggle: () => void;
+  onItemClick?: () => void;
 }) {
   const filteredItems = group.items.filter((item) => item.roles.includes(userRole));
   if (filteredItems.length === 0) return null;
@@ -155,6 +158,7 @@ function SidebarGroup({
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={onItemClick}
                 className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13px] font-medium transition-all ${
                   isActive
                     ? "bg-primary/20 text-white shadow-lg shadow-primary/10"
@@ -283,9 +287,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Logo */}
       <div className="p-5 pb-3">
         <Link href="/admin" className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-xl gradient-brand flex items-center justify-center shadow-lg shadow-primary/30">
-            <Zap className="w-5 h-5" />
-          </span>
+          <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center bg-white/10 border border-white/15 p-1 shadow-lg shadow-primary/30 shrink-0">
+            <NextImage
+              src="/logo.png"
+              alt="Gadget & Gear BD Logo"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+            />
+          </div>
           <div>
             <p className="font-display font-bold text-lg leading-none">Gadget & Gear<span className="text-accent">BD</span></p>
             <p className="text-[10px] uppercase tracking-widest opacity-60 mt-0.5">{user.role} Panel</p>
@@ -303,6 +313,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             pathname={pathname}
             collapsed={collapsedGroups[group.label] ?? false}
             onToggle={() => toggleGroup(group.label)}
+            onItemClick={() => setSidebarOpen(false)}
           />
         ))}
       </nav>
@@ -345,8 +356,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="absolute inset-0 bg-brand-dark/60 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-          <aside className="relative w-[270px] min-h-screen admin-gradient text-primary-foreground animate-slide-in flex flex-col">
-            <div className="absolute right-3 top-5">
+          <aside className="relative w-[270px] min-h-screen admin-gradient text-primary-foreground animate-slide-in-left flex flex-col">
+            <div className="absolute right-3 top-5 z-10">
               <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-white/10 rounded-lg">
                 <X className="w-5 h-5" />
               </button>
@@ -406,7 +417,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </header>
 
         {/* Page Content */}
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-3 sm:p-4 lg:p-6 pb-20 lg:pb-6">{children}</main>
       </div>
     </div>
   );
