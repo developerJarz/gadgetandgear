@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Plus, X, Search, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
+import { MediaInput } from "@/components/admin/media/MediaInput";
+import { cldFit } from "@/lib/cloudinary-url";
 
 interface CategoryItem {
   _id: string;
@@ -51,33 +53,43 @@ export default function AdminCategories() {
     setShowModal(true);
   };
 
+  const request = async (url: string, init: RequestInit) => {
+    const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `Request failed (${res.status})`);
+    return res;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const slug = form.slug || form.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
       if (editing) {
-        await fetch(`/api/categories/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, slug }) });
-        toast.success("Category updated!");
+        await request(`/api/categories/${editing._id}`, { method: "PUT", body: JSON.stringify({ ...form, slug }) });
+        toast.success("Category saved");
       } else {
-        await fetch("/api/categories", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, slug }) });
-        toast.success("Category created!");
+        await request("/api/categories", { method: "POST", body: JSON.stringify({ ...form, slug }) });
+        toast.success("Category added");
       }
       fetchCategories();
       setShowModal(false);
-    } catch { toast.error("Failed to save"); }
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   const toggleActive = async (c: CategoryItem) => {
-    await fetch(`/api/categories/${c._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: !c.isActive }) });
-    toast.success(c.isActive ? "Category disabled" : "Category enabled");
-    fetchCategories();
+    try {
+      await request(`/api/categories/${c._id}`, { method: "PUT", body: JSON.stringify({ isActive: !c.isActive }) });
+      toast.success(c.isActive ? "Category hidden" : "Category visible");
+      fetchCategories();
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/categories/${id}`, { method: "DELETE" });
-    toast.success("Category deleted");
-    fetchCategories();
-    setDeleteConfirm(null);
+    try {
+      await request(`/api/categories/${id}`, { method: "DELETE" });
+      toast.success("Category deleted");
+      fetchCategories();
+      setDeleteConfirm(null);
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -102,8 +114,13 @@ export default function AdminCategories() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {filtered.map((c) => (
           <div key={c._id} className={`bg-card border rounded-2xl overflow-hidden transition hover:shadow-lg hover:shadow-primary/5 ${c.isActive ? "border-border" : "border-destructive/30 opacity-60"}`}>
-            <div className="h-32 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
-              <span className="text-4xl font-display font-bold text-primary/20">{c.name.charAt(0)}</span>
+            <div className="h-32 bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center overflow-hidden">
+              {c.img ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img src={cldFit(c.img, 600)} alt="" className="w-full h-full object-cover" loading="lazy" />
+              ) : (
+                <span className="text-4xl font-display font-bold text-primary/20">{c.name.charAt(0)}</span>
+              )}
             </div>
             <div className="p-4">
               <div className="flex items-start justify-between">
@@ -133,7 +150,7 @@ export default function AdminCategories() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-dark/50 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-lg p-6 shadow-2xl animate-fade-up">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl animate-fade-up">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display font-semibold text-xl">{editing ? "Edit Category" : "Add Category"}</h2>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-accent rounded-lg"><X className="w-5 h-5" /></button>
@@ -153,10 +170,14 @@ export default function AdminCategories() {
                   <input value={form.count} onChange={(e) => setForm({ ...form, count: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
                 </div>
               </div>
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Image URL</label>
-                <input value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })} placeholder="/image.jpg" className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
-              </div>
+              <MediaInput
+                label="Category image"
+                value={form.img}
+                onChange={(img) => setForm({ ...form, img })}
+                folder="categories"
+                aspect="wide"
+                hint="Wide image, at least 1200×500"
+              />
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none" />

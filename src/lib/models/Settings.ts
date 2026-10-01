@@ -31,6 +31,22 @@ export interface ISettings extends Document {
     apiKey: string;
     senderId: string;
   };
+  branding: { logo: string; favicon: string };
+  contact: { email: string; phone: string; whatsapp: string; address: string };
+  header: {
+    showTopBar: boolean;
+    announcements: string[];
+    quickLinks: { label: string; href: string }[];
+    showPromoBadges: boolean;
+  };
+  hero: {
+    image: string;
+    eyebrow: string;
+    title: string;
+    subtitle: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
   vatRate: number;
   currency: string;
   timezone: string;
@@ -79,6 +95,48 @@ const SettingsSchema = new Schema<ISettings>(
       provider: { type: String, default: "" },
       apiKey: { type: String, default: "" },
       senderId: { type: String, default: "" },
+    },
+    branding: {
+      logo: { type: String, default: "" },
+      favicon: { type: String, default: "" },
+    },
+    contact: {
+      email: { type: String, default: "gadgetandgear.bd01@gmail.com" },
+      phone: { type: String, default: "" },
+      whatsapp: { type: String, default: "" },
+      address: { type: String, default: "Mirpur 2, Dhaka" },
+    },
+    header: {
+      showTopBar: { type: Boolean, default: true },
+      announcements: {
+        type: [String],
+        default: ["Flash deals up to 40% off, today only", "Free delivery inside Dhaka over ৳3,000", "0% EMI up to 24 months"],
+      },
+      quickLinks: {
+        type: [{ label: String, href: String, _id: false }],
+        default: [
+          { label: "Smartphones", href: "/shop?category=smartphones" },
+          { label: "Laptops", href: "/shop?category=laptops" },
+          { label: "Earbuds & Audio", href: "/shop?category=earbuds" },
+          { label: "Smart Watches", href: "/shop?category=smartwatches" },
+          { label: "Monitors", href: "/shop?category=monitors" },
+          { label: "Keyboards", href: "/shop?category=keyboards" },
+          { label: "Accessories", href: "/shop?category=accessories" },
+        ],
+      },
+      showPromoBadges: { type: Boolean, default: true },
+    },
+    hero: {
+      image: { type: String, default: "" },
+      eyebrow: { type: String, default: "New season · 2026 line-up" },
+      title: { type: String, default: "Tech that just works." },
+      subtitle: {
+        type: String,
+        default:
+          "Bangladesh's premium destination for smartphones, laptops and smart devices, with official warranty, EMI up to 24 months and nationwide delivery.",
+      },
+      ctaLabel: { type: String, default: "Shop the collection" },
+      ctaHref: { type: String, default: "/shop" },
     },
     vatRate: { type: Number, default: 15 }, // Bangladesh VAT rate
     currency: { type: String, default: "BDT" },

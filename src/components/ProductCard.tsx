@@ -36,7 +36,7 @@ export function ProductCard({
             width={800}
             height={1000}
             loading="lazy"
-            className="w-full aspect-[4/5] object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full aspect-[4/5] object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </Link>
 

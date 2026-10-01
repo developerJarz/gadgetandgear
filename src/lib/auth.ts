@@ -144,7 +144,54 @@ export async function requireRole(
   return result;
 }
 
+/** Like requireAuth, but also checks the role's RBAC permission for a resource. */
+export async function requirePermission(
+  resource: string
+): Promise<{ user: JWTPayload } | NextResponse> {
+  const result = await requireAuth();
+  if (result instanceof NextResponse) return result;
+  if (!hasPermission(result.user.role, resource)) {
+    return NextResponse.json({ error: `Your role can't manage ${resource}.` }, { status: 403 });
+  }
+  return result;
+}
+
+/** Client IP and user agent for audit entries. */
+export function requestMeta(req: NextRequest): { ip: string; userAgent: string } {
+  const forwarded = req.headers.get("x-forwarded-for") || "";
+  return {
+    ip: forwarded.split(",")[0].trim() || req.headers.get("x-real-ip") || "",
+    userAgent: req.headers.get("user-agent") || "",
+  };
+}
+
+/** Field-level diff between two plain objects, limited to the given keys (or the keys of `after`). */
+export function diffFields(
+  before: Record<string, any> | null | undefined,
+  after: Record<string, any>,
+  keys?: string[]
+): Record<string, { from: unknown; to: unknown }> {
+  const changes: Record<string, { from: unknown; to: unknown }> = {};
+  for (const key of keys || Object.keys(after)) {
+    if (["_id", "__v", "createdAt", "updatedAt", "slug"].includes(key)) continue;
+    const from = before?.[key];
+    const to = after[key];
+    if (to === undefined) continue;
+    if (JSON.stringify(from ?? null) !== JSON.stringify(to ?? null)) {
+      changes[key] = { from: from ?? null, to: to ?? null };
+    }
+  }
+  return changes;
+}
+
 /* ─── Audit Logging Helper ─── */
+
+export interface AuditMeta {
+  entityName?: string;
+  changes?: Record<string, { from: unknown; to: unknown }> | null;
+  severity?: "info" | "warning" | "critical";
+  userAgent?: string;
+}
 
 export async function logAudit(
   action: string,
@@ -152,18 +199,26 @@ export async function logAudit(
   entityId: string,
   user: JWTPayload | null,
   details?: string,
-  ip?: string
+  ip?: string,
+  meta: AuditMeta = {}
 ) {
   try {
     await connectDB();
+    const severity =
+      meta.severity || (action === "delete" || action === "login_failed" ? "warning" : "info");
     await AuditLog.create({
       action,
       entity,
       entityId,
+      entityName: meta.entityName || "",
       performedBy: user?.staffId || null,
       performedByName: user?.name || "System",
+      performedByRole: user?.role || "",
       details: details || "",
+      changes: meta.changes && Object.keys(meta.changes).length ? meta.changes : null,
+      severity,
       ip: ip || "",
+      userAgent: meta.userAgent || "",
     });
   } catch {
     // Audit log should never block the main operation

@@ -45,7 +45,7 @@ export function ProductListView({ product, onQuickView }: ProductListViewProps) 
             alt={product.name}
             fill
             sizes="(max-width: 640px) 100vw, 200px"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
         </Link>
 

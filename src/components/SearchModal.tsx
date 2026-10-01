@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Search, X, Star, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { PRODUCTS } from "@/lib/site-data";
@@ -10,8 +11,21 @@ import type { Product } from "@/lib/site-data";
 
 export function SearchModal() {
   const { isSearchOpen, setIsSearchOpen } = useCart();
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
+
+  // Escape closes; the page behind doesn't scroll while searching.
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setIsSearchOpen(false);
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = "";
+    };
+  }, [isSearchOpen, setIsSearchOpen]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -38,15 +52,23 @@ export function SearchModal() {
         onClick={() => setIsSearchOpen(false)}
       />
 
-      <div className="relative min-h-screen flex items-start justify-center p-4 pt-16 sm:pt-24">
-        <div className="relative w-full max-w-2xl bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-scale-up">
+      <div className="relative min-h-screen flex items-start justify-center p-3 pt-4 sm:p-4 sm:pt-24 pointer-events-none">
+        <div role="dialog" aria-modal="true" aria-label="Search products" className="pointer-events-auto relative w-full max-w-2xl bg-card border border-border rounded-3xl shadow-2xl overflow-hidden animate-scale-up">
           {/* Search Bar */}
           <div className="p-4 border-b border-border flex items-center gap-3">
             <Search className="w-5 h-5 text-primary shrink-0 ml-2" />
             <input
               autoFocus
+              type="search"
+              enterKeyHint="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && query.trim()) {
+                  setIsSearchOpen(false);
+                  router.push(`/shop?q=${encodeURIComponent(query.trim())}`);
+                }
+              }}
               placeholder="Search smartphones, laptops, earbuds, brands..."
               className="w-full bg-transparent text-base focus:outline-none placeholder:text-muted-foreground"
             />

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Instagram, Facebook, Youtube, Phone, MessageCircle, Mail } from "lucide-react";
+import { Instagram, Facebook, Youtube, Mail, MapPin } from "lucide-react";
 
 export function Footer() {
   return (
@@ -24,28 +24,16 @@ export function Footer() {
 
           {/* Contact Details */}
           <div className="pt-2 space-y-2 text-xs opacity-90">
+            <div className="flex items-center gap-2 opacity-90">
+              <MapPin className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>Mirpur 2, Dhaka, Bangladesh</span>
+            </div>
             <a
-              href="tel:+8801677248045"
+              href="mailto:gadgetandgear.bd01@gmail.com"
               className="flex items-center gap-2 hover:text-accent transition font-medium"
             >
-              <Phone className="w-3.5 h-3.5 text-accent" />
-              <span>+880 1677-248045</span>
-            </a>
-            <a
-              href="https://wa.me/8801677248045"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 hover:text-accent transition font-medium"
-            >
-              <MessageCircle className="w-3.5 h-3.5 text-success" />
-              <span>WhatsApp: +880 1677-248045</span>
-            </a>
-            <a
-              href="mailto:support@gadgetandgear.bd"
-              className="flex items-center gap-2 hover:text-accent transition opacity-80"
-            >
-              <Mail className="w-3.5 h-3.5" />
-              <span>support@gadgetandgear.bd</span>
+              <Mail className="w-3.5 h-3.5 text-accent shrink-0" />
+              <span>gadgetandgear.bd01@gmail.com</span>
             </a>
           </div>
 
@@ -116,7 +104,9 @@ export function Footer() {
             . All rights reserved.
           </p>
           <div className="flex items-center gap-3">
-            <span className="font-mono text-[11px] text-accent">Hotline: +880 1677-248045</span>
+            <a href="mailto:gadgetandgear.bd01@gmail.com" className="font-mono text-[11px] text-accent hover:underline">
+              gadgetandgear.bd01@gmail.com
+            </a>
             <span className="opacity-40">|</span>
             <p>bKash · Nagad · Rocket · COD · 0% EMI</p>
           </div>

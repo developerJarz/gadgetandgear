@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { Plus, X, Search, Pencil, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { toast } from "sonner";
+import { MediaInput } from "@/components/admin/media/MediaInput";
+import { BrandLogo } from "@/components/BrandLogo";
+import { getBrandInfo } from "@/lib/site-data";
 
 interface BrandItem {
   _id: string;
@@ -38,32 +41,42 @@ export default function AdminBrands() {
   const openAdd = () => { setEditing(null); setForm({ name: "", logo: "" }); setShowModal(true); };
   const openEdit = (b: BrandItem) => { setEditing(b); setForm({ name: b.name, logo: b.logo }); setShowModal(true); };
 
+  const request = async (url: string, init: RequestInit) => {
+    const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
+    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || `Request failed (${res.status})`);
+    return res;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editing) {
-        await fetch(`/api/brands/${editing._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-        toast.success("Brand updated!");
+        await request(`/api/brands/${editing._id}`, { method: "PUT", body: JSON.stringify(form) });
+        toast.success("Brand saved");
       } else {
-        await fetch("/api/brands", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
-        toast.success("Brand created!");
+        await request("/api/brands", { method: "POST", body: JSON.stringify(form) });
+        toast.success("Brand added");
       }
       fetchBrands();
       setShowModal(false);
-    } catch { toast.error("Failed to save"); }
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   const toggleActive = async (b: BrandItem) => {
-    await fetch(`/api/brands/${b._id}`, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ isActive: !b.isActive }) });
-    toast.success(b.isActive ? "Brand disabled" : "Brand enabled");
-    fetchBrands();
+    try {
+      await request(`/api/brands/${b._id}`, { method: "PUT", body: JSON.stringify({ isActive: !b.isActive }) });
+      toast.success(b.isActive ? "Brand hidden" : "Brand visible");
+      fetchBrands();
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   const handleDelete = async (id: string) => {
-    await fetch(`/api/brands/${id}`, { method: "DELETE" });
-    toast.success("Brand deleted");
-    fetchBrands();
-    setDeleteConfirm(null);
+    try {
+      await request(`/api/brands/${id}`, { method: "DELETE" });
+      toast.success("Brand deleted");
+      fetchBrands();
+      setDeleteConfirm(null);
+    } catch (err) { toast.error((err as Error).message); }
   };
 
   if (loading) return <div className="flex items-center justify-center min-h-[60vh]"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>;
@@ -91,11 +104,11 @@ export default function AdminBrands() {
         {filtered.map((b) => (
           <div key={b._id} className={`bg-card border rounded-2xl p-6 transition hover:shadow-lg hover:shadow-primary/5 ${b.isActive ? "border-border" : "border-destructive/30 opacity-60"}`}>
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center text-xl font-display font-bold text-primary shrink-0">
-                {b.name.charAt(0)}
+              <div className="w-20 h-14 rounded-xl bg-muted/50 border border-border/80 flex items-center justify-center px-2.5 shrink-0 text-foreground">
+                <BrandLogo name={b.name} stored={b.logo} className="h-6 w-full" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-display font-semibold truncate">{b.name}</p>
+                <p className="font-display font-semibold truncate text-foreground">{b.name}</p>
                 <p className="text-xs text-muted-foreground">{b.slug}</p>
               </div>
             </div>
@@ -106,11 +119,11 @@ export default function AdminBrands() {
                 <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-destructive/20 text-destructive font-medium">Disabled</span>
               )}
               <div className="flex items-center gap-1">
-                <button onClick={() => openEdit(b)} className="p-2 hover:bg-accent rounded-lg transition"><Pencil className="w-4 h-4 text-muted-foreground" /></button>
-                <button onClick={() => toggleActive(b)} className="p-2 hover:bg-accent rounded-lg transition">
+                <button onClick={() => openEdit(b)} className="p-2 hover:bg-accent rounded-lg transition" title="Edit Brand"><Pencil className="w-4 h-4 text-muted-foreground" /></button>
+                <button onClick={() => toggleActive(b)} className="p-2 hover:bg-accent rounded-lg transition" title={b.isActive ? "Disable" : "Enable"}>
                   {b.isActive ? <ToggleRight className="w-4 h-4 text-success" /> : <ToggleLeft className="w-4 h-4 text-muted-foreground" />}
                 </button>
-                <button onClick={() => setDeleteConfirm(b._id)} className="p-2 hover:bg-destructive/10 rounded-lg transition"><Trash2 className="w-4 h-4 text-destructive" /></button>
+                <button onClick={() => setDeleteConfirm(b._id)} className="p-2 hover:bg-destructive/10 rounded-lg transition" title="Delete"><Trash2 className="w-4 h-4 text-destructive" /></button>
               </div>
             </div>
           </div>
@@ -120,7 +133,7 @@ export default function AdminBrands() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-dark/50 backdrop-blur-sm p-4">
-          <div className="bg-card border border-border rounded-2xl w-full max-w-md p-6 shadow-2xl animate-fade-up">
+          <div className="bg-card border border-border rounded-2xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 shadow-2xl animate-fade-up">
             <div className="flex items-center justify-between mb-6">
               <h2 className="font-display font-semibold text-xl">{editing ? "Edit Brand" : "Add Brand"}</h2>
               <button onClick={() => setShowModal(false)} className="p-2 hover:bg-accent rounded-lg"><X className="w-5 h-5" /></button>
@@ -131,8 +144,23 @@ export default function AdminBrands() {
                 <input required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Logo URL</label>
-                <input value={form.logo} onChange={(e) => setForm({ ...form, logo: e.target.value })} placeholder="https://..." className="w-full px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring" />
+                <MediaInput
+                  label="Logo"
+                  value={form.logo}
+                  onChange={(logo) => setForm({ ...form, logo })}
+                  folder="brands"
+                  aspect="logo"
+                  hint="SVG or transparent PNG works best"
+                />
+                {form.name && !form.logo && getBrandInfo(form.name) && (
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, logo: getBrandInfo(form.name)!.logo })}
+                    className="mt-1.5 text-[11px] text-primary hover:underline font-medium"
+                  >
+                    Use the built-in {getBrandInfo(form.name)!.name} logo
+                  </button>
+                )}
               </div>
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 py-2.5 rounded-xl border border-border text-sm font-medium hover:bg-accent transition">Cancel</button>

@@ -46,7 +46,7 @@ const COMMAND_ITEMS: CommandItem[] = [
   { id: "couriers", label: "Couriers", description: "Bangladesh courier setup", icon: Truck, href: "/admin/couriers", group: "System" },
   { id: "staff", label: "Staff & Roles", description: "Team management", icon: Users, href: "/admin/staff", group: "System" },
   { id: "security", label: "Security Center", description: "2FA, login logs, IP tracking", icon: Shield, href: "/admin/security", group: "System" },
-  { id: "audit", label: "Audit Logs", description: "Activity trails", icon: FileText, href: "/admin/audit-logs", group: "System" },
+  { id: "audit", label: "Activity Monitor", description: "Live staff activity and sign-ins", icon: FileText, href: "/admin/audit-logs", group: "System" },
   { id: "settings", label: "Settings", description: "Store configuration", icon: Settings, href: "/admin/settings", group: "System" },
   { id: "api", label: "API & Webhooks", description: "API keys & webhooks", icon: Settings, href: "/admin/api-management", group: "System" },
   { id: "backup", label: "Backup & Recovery", description: "Database backups", icon: Shield, href: "/admin/backup", group: "System" },

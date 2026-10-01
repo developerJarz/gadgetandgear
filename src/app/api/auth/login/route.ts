@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import { Staff } from "@/lib/models/Staff";
-import { hashPassword, comparePassword, setAuthCookie, logAudit, type JWTPayload } from "@/lib/auth";
+import { hashPassword, comparePassword, setAuthCookie, logAudit, requestMeta, type JWTPayload } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,11 +14,22 @@ export async function POST(req: NextRequest) {
 
     const staff = await Staff.findOne({ email: email.toLowerCase().trim() });
 
+    const { ip, userAgent } = requestMeta(req);
+
     if (!staff) {
+      await logAudit("login_failed", "Staff", "", null, `Sign-in attempt for unknown email ${String(email).slice(0, 80)}`, ip, {
+        severity: "warning",
+        userAgent,
+      });
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     if (!staff.isActive) {
+      await logAudit("login_failed", "Staff", staff._id.toString(), null, "Sign-in attempt on a deactivated account", ip, {
+        entityName: staff.name,
+        severity: "warning",
+        userAgent,
+      });
       return NextResponse.json({ error: "Account is deactivated" }, { status: 403 });
     }
 
@@ -56,6 +67,12 @@ export async function POST(req: NextRequest) {
         staff.loginHistory = staff.loginHistory.slice(-50);
       }
       await staff.save();
+      const recentFailures = staff.loginHistory.slice(-5).filter((h) => !h.success).length;
+      await logAudit("login_failed", "Staff", staff._id.toString(), null, `Wrong password (${recentFailures} of the last 5 attempts failed)`, ip, {
+        entityName: staff.name,
+        severity: recentFailures >= 5 ? "critical" : "warning",
+        userAgent,
+      });
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
@@ -82,14 +99,10 @@ export async function POST(req: NextRequest) {
 
     await setAuthCookie(payload);
 
-    await logAudit(
-      "login",
-      "Staff",
-      staff._id.toString(),
-      payload,
-      `Login from ${req.headers.get("x-forwarded-for") || "unknown"}`,
-      req.headers.get("x-forwarded-for") || ""
-    );
+    await logAudit("login", "Staff", staff._id.toString(), payload, `Signed in from ${ip || "unknown IP"}`, ip, {
+      entityName: staff.name,
+      userAgent,
+    });
 
     return NextResponse.json({
       success: true,

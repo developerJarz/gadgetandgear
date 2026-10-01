@@ -7,10 +7,16 @@ import {
   Star, Zap, Sparkles, Cpu, Gamepad2, Smartphone, Laptop, Watch,
 } from "lucide-react";
 import heroPhone from "@/assets/gh-hero.jpg";
-import { CATEGORIES, PRODUCTS, BRANDS } from "@/lib/site-data";
+import phoneImg from "@/assets/gh-phone.jpg";
+import laptopImg from "@/assets/gh-laptop.jpg";
+import monitorImg from "@/assets/gh-monitor.jpg";
+import { CATEGORIES, PRODUCTS, OFFICIAL_BRANDS } from "@/lib/site-data";
+import { BrandLogo } from "@/components/BrandLogo";
 import { ProductCard } from "@/components/ProductCard";
+import { useStoreSettings } from "@/hooks/use-store-settings";
 
 export default function Home() {
+  const hero = useStoreSettings()?.hero;
   const flash = PRODUCTS.filter((p) => p.tag === "Flash Deal").slice(0, 8);
   const bestsellers = PRODUCTS.filter((p) => p.tag === "Bestseller").slice(0, 4);
   const newArrivals = PRODUCTS.filter((p) => p.tag === "New" || p.tag === "Pre-order").slice(0, 4);
@@ -24,17 +30,22 @@ export default function Home() {
         <div className="container-x grid lg:grid-cols-2 gap-10 lg:gap-16 py-14 lg:py-24 items-center">
           <div className="animate-fade-up order-2 lg:order-1">
             <span className="inline-flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-primary font-medium">
-              <Sparkles className="w-3.5 h-3.5" /> New Season · 2026 Line-up
+              <Sparkles className="w-3.5 h-3.5" /> {hero?.eyebrow || "New Season · 2026 Line-up"}
             </span>
-            <h1 className="font-display font-bold text-5xl sm:text-6xl lg:text-7xl leading-[1.02] mt-5">
-              Tech that <span className="text-gradient-brand">just works.</span>
+            <h1 className="font-display font-bold text-5xl sm:text-6xl lg:text-7xl leading-[1.02] mt-5 text-balance">
+              {hero?.title && hero.title !== "Tech that just works." ? (
+                hero.title
+              ) : (
+                <>Tech that <span className="text-gradient-brand">just works.</span></>
+              )}
             </h1>
             <p className="mt-6 text-muted-foreground max-w-md text-base sm:text-lg">
-              Bangladesh&apos;s premium destination for smartphones, laptops and smart devices — with official warranty, EMI up to 24 months and nationwide delivery.
+              {hero?.subtitle ||
+                "Bangladesh's premium destination for smartphones, laptops and smart devices — with official warranty, EMI up to 24 months and nationwide delivery."}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/shop" className="inline-flex items-center gap-2 gradient-brand text-primary-foreground px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition shadow-lg shadow-primary/25">
-                Shop the collection <ChevronRight className="w-4 h-4" />
+              <Link href={hero?.ctaHref || "/shop"} className="inline-flex items-center gap-2 gradient-brand text-primary-foreground px-7 py-3.5 rounded-full text-sm font-medium hover:opacity-90 transition shadow-lg shadow-primary/25">
+                {hero?.ctaLabel || "Shop the collection"} <ChevronRight className="w-4 h-4" />
               </Link>
               <a href="#flash" className="inline-flex items-center gap-2 border border-border bg-background/60 backdrop-blur px-7 py-3.5 rounded-full text-sm font-medium hover:bg-accent transition">
                 <Zap className="w-4 h-4 text-primary" /> Flash deals
@@ -81,7 +92,7 @@ export default function Home() {
 
             <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-primary/25 border border-border/80 group">
               <Image
-                src={heroPhone}
+                src={hero?.image || heroPhone}
                 alt="Premium flagship gadget ecosystem"
                 width={1600}
                 height={1200}
@@ -186,21 +197,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COLLECTIONS BANNER */}
+      {/* COLLECTIONS: photo + a dark scrim under the text, so it reads in light and dark mode */}
       <section className="container-x py-16 lg:py-20">
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { icon: Smartphone, t: "Smartphone Collection", s: "Flagships to budget picks", grad: "from-primary to-secondary", href: "/shop?category=smartphones" },
-            { icon: Laptop,     t: "Laptop Collection",     s: "Work · Study · Creator",   grad: "from-secondary to-accent", href: "/shop?category=laptops" },
-            { icon: Gamepad2,   t: "Gaming Zone",           s: "Consoles · Rigs · Gear",   grad: "from-brand-dark to-primary", href: "/shop?category=monitors" },
+            { icon: Smartphone, t: "Smartphones", s: "Flagships to budget picks", img: phoneImg, href: "/shop?category=smartphones", count: PRODUCTS.filter((p) => p.category === "smartphones").length },
+            { icon: Laptop, t: "Laptops", s: "For work, study and creating", img: laptopImg, href: "/shop?category=laptops", count: PRODUCTS.filter((p) => p.category === "laptops").length },
+            { icon: Gamepad2, t: "Gaming setups", s: "Monitors, keyboards and headsets", img: monitorImg, href: "/shop?category=monitors", count: PRODUCTS.filter((p) => ["monitors", "keyboards"].includes(p.category)).length },
           ].map((c) => (
-            <Link key={c.t} href={c.href} className={`group relative overflow-hidden rounded-3xl p-8 bg-gradient-to-br ${c.grad} text-primary-foreground min-h-[220px] flex flex-col justify-between`}>
-              <c.icon className="w-8 h-8 opacity-90" />
-              <div>
-                <p className="font-display font-bold text-2xl">{c.t}</p>
-                <p className="text-sm opacity-80 mt-1">{c.s}</p>
-                <p className="mt-4 inline-flex items-center gap-1 text-sm">Shop now <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition" /></p>
-              </div>
+            <Link key={c.t} href={c.href} className="group relative overflow-hidden rounded-3xl min-h-[240px] flex flex-col justify-end p-7 bg-brand-dark text-white isolate">
+              <Image src={c.img} alt="" fill sizes="(min-width: 768px) 33vw, 100vw" className="object-cover -z-10 opacity-90 transition-transform duration-700 ease-out group-hover:scale-105" />
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-brand-dark via-brand-dark/70 to-brand-dark/10" />
+              <c.icon className="absolute top-6 left-7 w-7 h-7 text-white/90" />
+              <p className="font-display font-bold text-2xl">{c.t}</p>
+              <p className="text-sm text-white/75 mt-1">{c.s}</p>
+              <p className="mt-4 inline-flex items-center gap-1 text-sm font-medium">
+                Browse {c.count} products <ChevronRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </p>
             </Link>
           ))}
         </div>
@@ -222,20 +235,36 @@ export default function Home() {
         </div>
       </section>
 
-      {/* BRANDS */}
+      {/* BRANDS: one quiet tone at rest; each mark takes its own colour when hovered */}
       <section className="border-y border-border bg-secondary/40">
-        <div className="container-x py-14">
-          <div className="text-center mb-8">
-            <p className="text-xs tracking-[0.2em] uppercase text-primary font-medium">Featured brands</p>
-            <h2 className="font-display font-bold text-3xl lg:text-4xl mt-2">Only the brands you trust</h2>
+        <div className="container-x py-14 lg:py-20">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-8">
+            <div>
+              <p className="text-xs tracking-[0.2em] uppercase text-primary font-medium">Official brands</p>
+              <h2 className="font-display font-bold text-3xl lg:text-4xl mt-2">Shop by brand</h2>
+              <p className="text-sm text-muted-foreground mt-2 max-w-md">
+                {OFFICIAL_BRANDS.length} brands, every product sourced through authorised distributors.
+              </p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-3 lg:gap-4">
-            {BRANDS.map((b) => (
-              <span key={b} className="px-5 py-2.5 rounded-full glass text-sm font-display font-semibold text-muted-foreground hover:text-primary hover:border-primary/40 transition">
-                {b}
-              </span>
-            ))}
-          </div>
+          <ul className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 border-t border-l border-border rounded-2xl overflow-hidden bg-card">
+            {OFFICIAL_BRANDS.map((b) => {
+              const count = PRODUCTS.filter((p) => p.brand === b.name).length;
+              return (
+                <li key={b.slug} className="border-r border-b border-border">
+                  <Link
+                    href={`/shop?brand=${encodeURIComponent(b.name)}`}
+                    className="group flex flex-col items-center justify-center gap-2.5 h-28 px-3 text-muted-foreground hover:bg-background transition-colors focus-visible:outline-offset-[-2px]"
+                  >
+                    <BrandLogo name={b.name} colorOnHover className="h-7 w-24 max-w-full text-foreground/55 group-hover:text-foreground" />
+                    <span className="text-[11px] opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 group-focus-visible:opacity-100 transition duration-300">
+                      {count} {count === 1 ? "product" : "products"}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </section>
 

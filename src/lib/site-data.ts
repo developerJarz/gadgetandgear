@@ -161,28 +161,66 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
-export const BRANDS = [
-  "Apple",
-  "Samsung",
-  "ASUS",
-  "Sony",
-  "Xiaomi",
-  "Nothing",
-  "Dell",
-  "HP",
-  "Lenovo",
-  "Logitech",
-  "Anker",
-  "Baseus",
-  "Ugreen",
-  "JBL",
-  "OnePlus",
-  "Google",
-  "DJI",
-  "Razer",
-  "Keychron",
-  "Spigen",
+export interface BrandInfo {
+  name: string;
+  slug: string;
+  logo: string;
+  color?: string | null;
+  tagline?: string;
+}
+
+/*
+ * Brand logos live in /public/brands so they load from our own domain.
+ * Sources: Simple Icons (CC0) and Wikimedia Commons (public domain), plus the
+ * ESR and Baseus marks from their official sites. `color` is the brand colour
+ * shown on hover; null means the mark is black/white and follows the text colour.
+ */
+export const OFFICIAL_BRANDS: BrandInfo[] = [
+  { name: "Apple", slug: "apple", logo: "/brands/apple.svg", color: null, tagline: "iPhone, Mac, iPad, AirPods" },
+  { name: "Samsung", slug: "samsung", logo: "/brands/samsung.svg", color: "#1428A0", tagline: "Galaxy phones, OLED displays" },
+  { name: "Xiaomi", slug: "xiaomi", logo: "/brands/xiaomi.svg", color: "#FF6900", tagline: "Smart tech, power banks" },
+  { name: "Sony", slug: "sony", logo: "/brands/sony.svg", color: null, tagline: "ANC headphones, audio" },
+  { name: "ASUS", slug: "asus", logo: "/brands/asus.svg", color: null, tagline: "ROG, Zenbook laptops" },
+  { name: "DJI", slug: "dji", logo: "/brands/dji.svg", color: null, tagline: "Drones and gimbals" },
+  { name: "Anker", slug: "anker", logo: "/brands/anker.svg", color: "#00A7E1", tagline: "GaN chargers, hubs" },
+  { name: "JBL", slug: "jbl", logo: "/brands/jbl.svg", color: "#FF3300", tagline: "Speakers and earbuds" },
+  { name: "Baseus", slug: "baseus", logo: "/brands/baseus.png", color: null, tagline: "Cables and multiports" },
+  { name: "Logitech", slug: "logitech", logo: "/brands/logitech.svg", color: "#00B8FC", tagline: "MX mice, G keyboards" },
+  { name: "Dell", slug: "dell", logo: "/brands/dell.svg", color: "#007DB8", tagline: "XPS, Inspiron, Alienware" },
+  { name: "Ugreen", slug: "ugreen", logo: "/brands/ugreen.png", color: null, tagline: "GaN fast chargers, hubs" },
+  { name: "Nothing", slug: "nothing", logo: "/brands/nothing.svg", color: null, tagline: "Glyph phones, CMF audio" },
+  { name: "Keychron", slug: "keychron", logo: "/brands/keychron.svg", color: null, tagline: "Mechanical keyboards" },
+  { name: "Razer", slug: "razer", logo: "/brands/razer.svg", color: "#44D62C", tagline: "Gaming peripherals" },
+  { name: "OnePlus", slug: "oneplus", logo: "/brands/oneplus.svg", color: "#F5010C", tagline: "Flagship phones" },
+  { name: "Lenovo", slug: "lenovo", logo: "/brands/lenovo.svg", color: "#E2231A", tagline: "Legion, ThinkPad, Yoga" },
+  { name: "Spigen", slug: "spigen", logo: "/brands/spigen.svg", color: null, tagline: "Cases and screen guards" },
+  { name: "Realme", slug: "realme", logo: "/brands/realme.svg", color: null, tagline: "Value smartphones" },
+  { name: "Marshall", slug: "marshall", logo: "/brands/marshall.svg", color: null, tagline: "Speakers and headphones" },
+  { name: "HP", slug: "hp", logo: "/brands/hp.svg", color: "#0096D6", tagline: "Spectre, OMEN, Envy" },
+  { name: "Bose", slug: "bose", logo: "/brands/bose.svg", color: null, tagline: "Noise cancelling audio" },
+  { name: "Google", slug: "google", logo: "/brands/google.svg", color: "#4285F4", tagline: "Pixel phones and buds" },
+  { name: "ESR", slug: "esr", logo: "/brands/esr.svg", color: null, tagline: "Cases and MagSafe gear" },
 ];
+
+export const BRAND_LOGOS: Record<string, string> = Object.fromEntries(OFFICIAL_BRANDS.map((b) => [b.name, b.logo]));
+
+const BRAND_BY_NAME = new Map(OFFICIAL_BRANDS.map((b) => [b.name.toLowerCase(), b]));
+
+export function getBrandInfo(name: string): BrandInfo | undefined {
+  return BRAND_BY_NAME.get(name.toLowerCase());
+}
+
+/**
+ * The logo to show for a brand. A logo uploaded in the admin panel wins; old
+ * hotlinked Simple Icons URLs (several of which no longer exist) fall back to the local file.
+ */
+export function resolveBrandLogo(name: string, stored?: string | null): string | undefined {
+  const local = getBrandInfo(name)?.logo;
+  if (stored && !(stored.includes("cdn.simpleicons.org") && local)) return stored;
+  return local;
+}
+
+export const BRANDS = OFFICIAL_BRANDS.map((b) => b.name);
 
 export const PRODUCTS: Product[] = [
   /* ─────────────────────────── SMARTPHONES (12 ITEMS) ─────────────────────────── */

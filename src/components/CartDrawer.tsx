@@ -43,7 +43,7 @@ export function CartDrawer() {
         onClick={() => setIsCartOpen(false)}
       />
 
-      <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
         <div className="w-screen max-w-md bg-card border-l border-border shadow-2xl flex flex-col animate-slide-in">
           {/* Header */}
           <div className="p-6 border-b border-border flex items-center justify-between">

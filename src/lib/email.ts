@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
 
 // Sender info from environment variables
 const FROM_NAME = process.env.SMTP_FROM_NAME || "Gadget & Gear BD";
-const FROM_EMAIL = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "";
+const FROM_EMAIL = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "gadgetandgear.bd01@gmail.com";
 const FROM_ADDRESS = `${FROM_NAME} <${FROM_EMAIL}>`;
 
 export async function sendOTPEmail(email: string, otp: string, name?: string) {
@@ -56,7 +56,7 @@ export async function sendOTPEmail(email: string, otp: string, name?: string) {
     
     <div class="footer">
       &copy; ${new Date().getFullYear()} Gadget &amp; Gear BD. Bangladesh's premier tech store.<br>
-      Dhaka, Bangladesh
+      Mirpur 2, Dhaka, Bangladesh
     </div>
   </div>
 </body>

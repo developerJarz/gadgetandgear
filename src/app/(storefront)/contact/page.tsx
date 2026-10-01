@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Phone, MapPin, MessageCircle, Instagram, Facebook } from "lucide-react";
+import { Mail, MapPin, Headphones, Instagram, Facebook } from "lucide-react";
 
 export default function Contact() {
   const [sent, setSent] = useState(false);
@@ -13,22 +13,22 @@ export default function Contact() {
         <p className="text-xs tracking-[0.2em] uppercase text-primary font-medium">Support</p>
         <h1 className="font-display font-bold text-5xl lg:text-6xl mt-3">How can we <span className="text-gradient-brand">help?</span></h1>
         <p className="mt-4 text-muted-foreground max-w-xl mx-auto">
-          Questions about an order, warranty, EMI or a specific product? Our team replies within an hour, seven days a week.
+          Questions about an order, warranty, EMI or a specific product? Our team replies promptly via email, seven days a week.
         </p>
       </section>
 
       <section className="container-x pb-16 lg:pb-24 grid lg:grid-cols-3 gap-6">
         {[
-          { icon: MessageCircle, t: "WhatsApp Support", s: "+880 1677-248045", u: "https://wa.me/8801677248045" },
-          { icon: Mail,          t: "Email Us",         s: "support@gadgetandgear.bd", u: "mailto:support@gadgetandgear.bd" },
-          { icon: Phone,         t: "Hotline Phone",    s: "+880 1677-248045", u: "tel:+8801677248045" },
+          { icon: Mail,          t: "Official Email Support",  s: "gadgetandgear.bd01@gmail.com", u: "mailto:gadgetandgear.bd01@gmail.com" },
+          { icon: MapPin,        t: "Store Location",          s: "Mirpur 2, Dhaka, Bangladesh",  u: "#" },
+          { icon: Headphones,    t: "Online Customer Desk",    s: "24/7 Fast Inquiry Reply",     u: "mailto:gadgetandgear.bd01@gmail.com" },
         ].map((c) => (
           <a key={c.t} href={c.u} className="group p-8 rounded-2xl border border-border bg-card hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition">
             <div className="w-11 h-11 rounded-xl gradient-brand flex items-center justify-center text-primary-foreground">
               <c.icon className="w-5 h-5" />
             </div>
             <p className="mt-5 font-display font-semibold">{c.t}</p>
-            <p className="mt-1 text-sm text-muted-foreground group-hover:text-primary transition">{c.s}</p>
+            <p className="mt-1 text-sm text-muted-foreground group-hover:text-primary transition break-all">{c.s}</p>
           </a>
         ))}
       </section>
@@ -46,8 +46,8 @@ export default function Contact() {
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <div>
-                  <p className="font-medium">Gadget & Gear BD — Flagship Store</p>
-                  <p className="text-muted-foreground">Level 4, Bashundhara City, Panthapath, Dhaka 1205</p>
+                  <p className="font-medium">Gadget & Gear BD — Main Store</p>
+                  <p className="text-muted-foreground">Mirpur 2, Dhaka, Bangladesh</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 pt-2">

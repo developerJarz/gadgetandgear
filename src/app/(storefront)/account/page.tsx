@@ -1296,55 +1296,50 @@ export default function CustomerAccountPage() {
                     </p>
                   </div>
 
-                  <div className="grid sm:grid-cols-3 gap-4">
-                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 space-y-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5" />
-                      </div>
-                      <h3 className="font-display font-bold text-base">WhatsApp Live Chat</h3>
-                      <p className="text-xs text-muted-foreground">
-                        Chat instantly with our dedicated tech support agents.
-                      </p>
-                      <a
-                        href={whatsappLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
-                      >
-                        Start WhatsApp Chat <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
-                    </div>
-
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div className="bg-primary/10 border border-primary/20 rounded-2xl p-5 space-y-3">
                       <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center">
-                        <Phone className="w-5 h-5" />
+                        <Mail className="w-5 h-5" />
                       </div>
-                      <h3 className="font-display font-bold text-base">Helpline Support</h3>
+                      <h3 className="font-display font-bold text-base">Official Email Support</h3>
                       <p className="text-xs text-muted-foreground">
-                        Call our customer helpline (10:00 AM - 10:00 PM daily).
+                        Inquiries, order assistance, and warranty claims.
                       </p>
                       <a
-                        href="tel:+8801700000000"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                        href="mailto:gadgetandgear.bd01@gmail.com"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline break-all"
                       >
-                        +880 1700-000000 <ExternalLink className="w-3.5 h-3.5" />
+                        gadgetandgear.bd01@gmail.com <ExternalLink className="w-3.5 h-3.5 shrink-0" />
                       </a>
                     </div>
 
-                    <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5 space-y-3">
-                      <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center">
-                        <Mail className="w-5 h-5" />
+                    <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-5 space-y-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
+                        <MapPin className="w-5 h-5" />
                       </div>
-                      <h3 className="font-display font-bold text-base">Email Support</h3>
+                      <h3 className="font-display font-bold text-base">Store Location</h3>
                       <p className="text-xs text-muted-foreground">
-                        Send inquiries, warranty claims, and invoices.
+                        Visit our official store in Dhaka.
                       </p>
-                      <a
-                        href="mailto:support@gadgetandgearbd.com"
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        Mirpur 2, Dhaka, Bangladesh
+                      </p>
+                    </div>
+
+                    <div className="bg-purple-500/10 border border-purple-500/20 rounded-2xl p-5 space-y-3 sm:col-span-2 lg:col-span-1">
+                      <div className="w-10 h-10 rounded-xl bg-purple-500 text-white flex items-center justify-center">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                      <h3 className="font-display font-bold text-base">Official Warranty</h3>
+                      <p className="text-xs text-muted-foreground">
+                        7-day replacement & 1-year brand warranty.
+                      </p>
+                      <Link
+                        href="/contact"
                         className="inline-flex items-center gap-1.5 text-xs font-semibold text-purple-600 dark:text-purple-400 hover:underline"
                       >
-                        support@gadgetandgearbd.com <ExternalLink className="w-3.5 h-3.5" />
-                      </a>
+                        Contact Support Team <ExternalLink className="w-3.5 h-3.5" />
+                      </Link>
                     </div>
                   </div>
 
